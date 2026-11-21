@@ -1,0 +1,2 @@
+# Todo con LF, también en Windows con core.autocrlf=true.
+* text=auto eol=lf

@@ -1,0 +1,53 @@
+# Chit&Go completo: la base, el back y el front, cada uno en su contenedor.
+# Antes de levantar: copiar .env.example como .env y cambiar la JWT_CLAVE.
+# Levantar: docker compose up --build -d   |   Bajar: docker compose down
+# Borrar también los datos: docker compose down -v
+# Solo el front sale a la compu (puerto 80 o FRONT_PUERTO). MySQL y el back quedan en la red del compose,
+# así no chocan con el compose de desarrollo del back (MySQL en el 3307) ni con el back de IntelliJ (8080).
+
+# Nombre propio: los contenedores y el volumen no se mezclan con los del compose de desarrollo del back.
+name: chitgo-entrega
+
+services:
+  mysql:
+    image: mysql:8.4
+    # Sin container_name: el compose del back ya usa chitgo-mysql.
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-chitgo}
+      MYSQL_USER: ${DB_USER:-chitgo}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-chitgo}
+      TZ: America/Argentina/Buenos_Aires
+    volumes:
+      - chitgo-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  back:
+    build: ./backend
+    restart: unless-stopped
+    # Todas las variables del .env (perfil, usuario de la base, JWT_CLAVE, COOKIE_SEGURA, PUSH_*).
+    env_file: .env
+    environment:
+      # Va acá y no en el .env para que siempre apunte al MySQL del compose y a la misma base que DB_NAME.
+      DB_URL: jdbc:mysql://mysql:3306/${DB_NAME:-chitgo}
+    # Con la base vacía, MySQL tarda en estar listo: sin esperar el healthcheck, el back se cae al arrancar.
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  front:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONT_PUERTO:-80}:80"
+    # nginx resuelve el nombre back una sola vez, al arrancar: si el contenedor no existe, no levanta.
+    depends_on:
+      - back
+
+volumes:
+  chitgo-mysql-data:

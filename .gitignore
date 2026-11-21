@@ -1,0 +1,5 @@
+# Las variables de cada compu, con la JWT_CLAVE propia. Se arma copiando .env.example.
+.env
+
+# IntelliJ
+.idea/
