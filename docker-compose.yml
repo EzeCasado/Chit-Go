@@ -30,7 +30,8 @@ services:
   back:
     build: ./backend
     restart: unless-stopped
-    # Todas las variables del .env (perfil, usuario de la base, JWT_CLAVE, COOKIE_SEGURA, PUSH_*).
+    # Todas las variables del .env (el modo, el primer local CHITGO_*, URL_FRONT, usuario de la base,
+    # JWT_CLAVE, COOKIE_SEGURA, PUSH_*). Otro local: docker compose run con el perfil script (README).
     env_file: .env
     environment:
       # Va acá y no en el .env para que siempre apunte al MySQL del compose y a la misma base que DB_NAME.
