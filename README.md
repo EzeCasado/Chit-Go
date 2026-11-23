@@ -360,6 +360,10 @@ Si el `up` dice que el puerto 80 ya está en uso, cambiar `FRONT_PUERTO` en el `
 `FRONT_PUERTO=8088`, y `URL_FRONT=http://localhost:8088`, volver a correr `docker compose up -d` y entrar a
 `http://localhost:8088`. En las URL de este README, cambia `localhost` por `localhost:8088`.
 
+**No usar el 5173**, que es el del front de desarrollo (`npm run dev`). Con el Vite prendido, el `up` no da error
+(Docker escucha en IPv4 y Vite en IPv6), pero `http://localhost:5173` va al Vite y no al compose, y el login da
+500.
+
 ## Para el grupo
 
 Cada submódulo queda fijo en un commit: no sigue su rama solo. Hoy siguen `develop`. Para traer lo último de
