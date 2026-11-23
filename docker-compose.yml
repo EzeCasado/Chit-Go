@@ -1,7 +1,7 @@
 # Chit&Go completo: la base, el back y el front, cada uno en su contenedor.
 # Antes de levantar: copiar .env.example como .env y cambiar la JWT_CLAVE.
 # Levantar: docker compose up --build -d   |   Bajar: docker compose down
-# Borrar también los datos: docker compose down -v
+# Borrar también los datos (la base y las fotos de los platos): docker compose down -v
 # Solo el front sale a la compu (puerto 80 o FRONT_PUERTO). MySQL y el back quedan en la red del compose,
 # así no chocan con el compose de desarrollo del back (MySQL en el 3307) ni con el back de IntelliJ (8080).
 
@@ -36,6 +36,12 @@ services:
     environment:
       # Va acá y no en el .env para que siempre apunte al MySQL del compose y a la misma base que DB_NAME.
       DB_URL: jdbc:mysql://mysql:3306/${DB_NAME:-chitgo}
+      # Las fotos de los platos (ST-29). Va acá por lo mismo: tiene que ser la carpeta donde se monta el volumen.
+      IMAGENES_CARPETA: /app/imagenes
+    # El Dockerfile crea /app/imagenes con dueño chitgo: con el volumen vacío, Docker le copia ese dueño y el back
+    # puede escribir. Las fotos quedan en el volumen y no en la imagen, así que un up --build no las pierde.
+    volumes:
+      - chitgo-imagenes:/app/imagenes
     # Con la base vacía, MySQL tarda en estar listo: sin esperar el healthcheck, el back se cae al arrancar.
     depends_on:
       mysql:
@@ -52,3 +58,4 @@ services:
 
 volumes:
   chitgo-mysql-data:
+  chitgo-imagenes:

@@ -343,13 +343,16 @@ El detalle de los dos comandos está en "Alta de un local" del [README del back]
 docker compose down
 ```
 
-Borra los contenedores y la red, pero **no la base**: vive en un volumen, y con el próximo `up` los datos siguen.
+Borra los contenedores y la red, pero **no la base ni las fotos de los platos**: cada una vive en su volumen, y
+con el próximo `up` siguen. Las fotos que suben los Admin quedan en el volumen y no adentro de la imagen del back,
+así que un `up --build` tampoco las pierde.
 
 ```
 docker compose down -v
 ```
 
-Borra también la base. El próximo `up` arranca con la base vacía y, con `demo`, vuelve a cargar la semilla.
+Borra también la base y las fotos de los platos. El próximo `up` arranca con la base vacía y, con `demo`, vuelve
+a cargar la semilla.
 
 ## Si el puerto 80 está ocupado
 
